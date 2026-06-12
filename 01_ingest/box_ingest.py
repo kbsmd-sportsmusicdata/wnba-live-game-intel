@@ -380,7 +380,7 @@ def print_preview(df_players: pd.DataFrame, df_teams: pd.DataFrame) -> None:
 # ---------------------------------------------------------------------------
 # Main entry
 # ---------------------------------------------------------------------------
-def run(game_id: Optional[str] = None, live_mode: bool = False) -> tuple[pd.DataFrame, pd.DataFrame]:
+def run(game_id: str | None = None, live_mode: bool = False) -> tuple[pd.DataFrame, pd.DataFrame]:
     config = load_config()
     _game_id = game_id or str(config["game"]["game_id"])
     output_dir = REPO_ROOT / config.get("output_dir", "03_outputs")
