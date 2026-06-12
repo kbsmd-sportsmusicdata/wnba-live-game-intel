@@ -143,6 +143,11 @@ def build_markdown_from_schedule_path(schedule_path: Path = DEFAULT_SCHEDULE_PAT
 
 def update_readme_section(readme_path: Path, section_markdown: str) -> None:
     text = readme_path.read_text(encoding="utf-8")
+    if README_START_MARKER not in text or README_END_MARKER not in text:
+        raise ValueError(
+            f"Required markers '{README_START_MARKER}' and/or '{README_END_MARKER}' "
+            f"not found in {readme_path}"
+        )
     start = text.index(README_START_MARKER)
     end = text.index(README_END_MARKER) + len(README_END_MARKER)
     replacement = f"{README_START_MARKER}\n{section_markdown}\n{README_END_MARKER}"
