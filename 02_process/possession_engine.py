@@ -55,7 +55,7 @@ console = Console()
 
 def load_config() -> dict:
     with open(CONFIG_PATH, "r") as f:
-        return yaml.safe_load(f)
+        return yaml.safe_load(f) or {}
 
 
 # ---------------------------------------------------------------------------
