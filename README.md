@@ -42,8 +42,8 @@ All outputs land in `03_outputs/`:
 
 - `raw_player.csv` — cleaned player box score rows
 - `raw_team.csv` — cleaned team box score rows
-- `tier1_shooting.csv` — per-player and team shooting efficiency
-- `tier2_possession.csv` — possession counts, pace, ORtg/DRtg
+- `tier1_shooting_player.csv` and `tier1_shooting_team.csv` — per-player and team shooting efficiency
+- `tier2_possession_player.csv` and `tier2_possession_team.csv` — possession counts, pace, ORtg/DRtg
 - `tier3_four_factors.csv` — Four Factors side-by-side with differentials
 - `dashboard_payload.json` — all derived stats formatted for dashboard ingestion
 
