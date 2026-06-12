@@ -159,9 +159,9 @@ def compute_team_possession_metrics(
             try:
                 if ":" in clock_str:
                     mins, secs = clock_str.split(":")
-                    remaining_in_period = int(mins) + int(secs) / 60
+                    remaining_in_period = float(mins) + float(secs) / 60
                 else:
-                    remaining_in_period = float(clock_str)
+                    remaining_in_period = float(clock_str) / 60
             except (ValueError, AttributeError):
                 remaining_in_period = 0.0
             completed_periods = max(period - 1, 0)
