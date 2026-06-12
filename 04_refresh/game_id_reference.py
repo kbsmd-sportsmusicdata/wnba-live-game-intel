@@ -69,7 +69,9 @@ def normalize_schedule_for_reference(schedule_df: pd.DataFrame) -> pd.DataFrame:
     if df.empty:
         return pd.DataFrame(columns=["Date", "Team", "Opponent", "Game ID"])
 
-    df["Date"] = pd.to_datetime(df[date_col], errors="coerce").dt.date.astype(str)
+    df["Date"] = pd.to_datetime(df[date_col], errors="coerce").dt.date
+    df = df[df["Date"].notna()].copy()
+    df["Date"] = df["Date"].astype(str)
     df["Game ID"] = df[game_id_col].apply(_format_game_id)
     df["Home Team"] = df[home_col].astype(str)
     df["Away Team"] = df[away_col].astype(str)
