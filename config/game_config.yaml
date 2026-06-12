@@ -1,0 +1,43 @@
+# ============================================================
+# WNBA Live Game Intel — Game Configuration
+# Edit this file before each session to target the active game.
+# ============================================================
+
+game:
+  # ESPN game_id — find at:
+  # https://www.espn.com/wnba/scoreboard
+  # Inspect the URL on any game page: .../game?gameId=<ID>
+  game_id: "401663644"  # placeholder — replace with live game_id
+  season: 2026
+  league: WNBA
+
+teams:
+  home:
+    name: "TBD"
+    abbreviation: "TBD"
+    primary_color: "#000000"
+    secondary_color: "#FFFFFF"
+  away:
+    name: "TBD"
+    abbreviation: "TBD"
+    primary_color: "#000000"
+    secondary_color: "#FFFFFF"
+
+# Polling interval in seconds (used when running in live loop mode)
+polling_interval_seconds: 45
+
+# Output directory (relative to repo root)
+output_dir: "03_outputs"
+
+# ============================================================
+# Analyst thresholds — used for color-flagging in dashboard
+# Green = at or above; Red = below
+# ============================================================
+thresholds:
+  ts_pct_good: 0.560          # TS% at or above this = efficient
+  efg_pct_good: 0.520         # eFG% at or above this = efficient
+  tov_rate_bad: 0.180         # TO rate at or above this = problem
+  oreb_pct_good: 0.300        # OREB% at or above this = strong offensive glass
+  ftr_good: 0.300             # FTA/FGA at or above this = drawing fouls well
+  pace_wnba_avg: 88.5         # 2025 WNBA average pace (per 40 min)
+  ortg_wnba_avg: 103.0        # 2025 WNBA average offensive rating
