@@ -47,6 +47,20 @@ updates [`config/game_config.yaml`](config/game_config.yaml) at runtime inside
 the workflow, runs ingest, optionally runs the downstream tiers, and uploads
 both the generated outputs and captured stage logs as artifacts.
 
+For the first completed-game smoke test, use `game_id` `401856915` as the
+fixed 2026 validation fixture for both local ingest checks and the first manual
+workflow dispatch.
+
+<!-- GAME_ID_REFERENCE_START -->
+## Game ID Reference
+
+This section is generated from `schedule_2026.parquet` when that file is available locally.
+
+- Expected schedule path: `/Users/krystalbeasley/projects/wnba-live-game-intel/data/raw/sportsdataverse/wnba_2026/schedule_2026.parquet`
+- Refresh source: `04_refresh/fetch_wnba_sportsdataverse_2026.py`
+- When the schedule parquet is present, regenerate this section to list completed and future games that already have assigned `game_id` values.
+<!-- GAME_ID_REFERENCE_END -->
+
 ## Season Refresh Workflow
 
 Use `04_refresh/` for offline season-wide data refreshes that should stay separate
