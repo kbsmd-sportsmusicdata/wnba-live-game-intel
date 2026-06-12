@@ -41,11 +41,11 @@ python 02_process/four_factors.py
 ## GitHub Actions
 
 The repo includes a manual workflow at
-`.github/workflows/wnba-live-game-pipeline.yml` for one-shot live game runs in
-GitHub Actions. It accepts an ESPN `game_id`, updates `config/game_config.yaml`
-at runtime inside the workflow, runs ingest, optionally runs the downstream
-tiers, and uploads both the generated outputs and captured stage logs as
-artifacts.
+[`.github/workflows/wnba-live-game-pipeline.yml`](.github/workflows/wnba-live-game-pipeline.yml)
+for one-shot live game runs in GitHub Actions. It accepts an ESPN `game_id`,
+updates [`config/game_config.yaml`](config/game_config.yaml) at runtime inside
+the workflow, runs ingest, optionally runs the downstream tiers, and uploads
+both the generated outputs and captured stage logs as artifacts.
 
 ## Season Refresh Workflow
 
