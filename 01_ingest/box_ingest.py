@@ -139,7 +139,7 @@ def _safe_minutes(val) -> float:
     if ":" in val:
         parts = val.split(":")
         try:
-            return int(parts[0]) + int(parts[1]) / 60
+            return float(parts[0]) + float(parts[1]) / 60
         except (ValueError, IndexError):
             return 0.0
     try:
