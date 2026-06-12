@@ -138,7 +138,7 @@ def build_markdown_from_schedule_path(schedule_path: Path = DEFAULT_SCHEDULE_PAT
     if not schedule_path.exists():
         return build_missing_schedule_markdown(schedule_path)
     schedule_df = pd.read_parquet(schedule_path)
-    return build_reference_markdown(normalize_schedule_for_reference(schedule_df))
+    return build_reference_markdown(normalize_schedule_for_reference(schedule_df), schedule_path)
 
 
 def update_readme_section(readme_path: Path, section_markdown: str) -> None:
