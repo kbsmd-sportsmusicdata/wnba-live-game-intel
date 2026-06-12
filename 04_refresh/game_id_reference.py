@@ -102,9 +102,9 @@ def normalize_schedule_for_reference(schedule_df: pd.DataFrame) -> pd.DataFrame:
     return normalized
 
 
-def build_reference_markdown(reference_df: pd.DataFrame) -> str:
+def build_reference_markdown(reference_df: pd.DataFrame, schedule_path: Path = DEFAULT_SCHEDULE_PATH) -> str:
     if reference_df.empty:
-        return build_missing_schedule_markdown(DEFAULT_SCHEDULE_PATH)
+        return build_missing_schedule_markdown(schedule_path)
 
     columns = list(reference_df.columns)
     lines = [
