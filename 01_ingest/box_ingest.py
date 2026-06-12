@@ -166,7 +166,8 @@ def parse_boxscore(data: dict, game_id: str, fetched_at: str) -> tuple[pd.DataFr
     players_data = boxscore.get("players", [])
 
     # ---- Game-level metadata ----
-    game_info = data.get("header", {}).get("competitions", [{}])[0]
+    competitions = data.get("header", {}).get("competitions", [])
+    game_info = competitions[0] if competitions else {}
     status_type = game_info.get("status", {}).get("type", {}).get("name", "unknown")
     period = game_info.get("status", {}).get("period", 0)
     display_clock = game_info.get("status", {}).get("displayClock", "")
