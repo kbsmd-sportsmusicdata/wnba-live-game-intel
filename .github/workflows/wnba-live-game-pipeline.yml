@@ -1,0 +1,129 @@
+name: WNBA Live Game Pipeline
+
+"on":
+  workflow_dispatch:
+    inputs:
+      game_id:
+        description: "ESPN WNBA game_id to ingest"
+        required: true
+        type: string
+      run_shooting_metrics:
+        description: "Run Tier 1 shooting metrics"
+        required: false
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+      run_possession_engine:
+        description: "Run Tier 2 possession engine"
+        required: false
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+      run_four_factors:
+        description: "Run Tier 3 four factors"
+        required: false
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+      output_dir:
+        description: "Output directory relative to repo root"
+        required: false
+        default: "03_outputs"
+        type: string
+
+jobs:
+  build-live-game-pipeline:
+    name: Run Live Game Ingest And Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Validate tier selections
+        shell: bash
+        run: |
+          if [[ "${{ github.event.inputs.run_possession_engine }}" == "true" && "${{ github.event.inputs.run_shooting_metrics }}" != "true" ]]; then
+            echo "Tier 2 requires Tier 1 shooting metrics." >&2
+            exit 1
+          fi
+
+          if [[ "${{ github.event.inputs.run_four_factors }}" == "true" && "${{ github.event.inputs.run_possession_engine }}" != "true" ]]; then
+            echo "Tier 3 requires Tier 2 possession engine." >&2
+            exit 1
+          fi
+
+      - name: Configure active game and output path
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+
+          config_path = Path("config/game_config.yaml")
+          config = yaml.safe_load(config_path.read_text()) or {}
+          config.setdefault("game", {})
+          config["game"]["game_id"] = "${{ github.event.inputs.game_id }}"
+          config["output_dir"] = "${{ github.event.inputs.output_dir }}"
+          config_path.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
+          PY
+
+      - name: Create logs directory
+        run: mkdir -p logs
+
+      - name: Run live box ingest
+        shell: bash
+        run: |
+          python 01_ingest/box_ingest.py --game_id "${{ github.event.inputs.game_id }}" \
+            2>&1 | tee logs/01_ingest.log
+
+      - name: Run Tier 1 shooting metrics
+        if: ${{ github.event.inputs.run_shooting_metrics == 'true' }}
+        shell: bash
+        run: |
+          python 02_process/shooting_metrics.py \
+            2>&1 | tee logs/02_shooting_metrics.log
+
+      - name: Run Tier 2 possession engine
+        if: ${{ github.event.inputs.run_possession_engine == 'true' }}
+        shell: bash
+        run: |
+          python 02_process/possession_engine.py \
+            2>&1 | tee logs/03_possession_engine.log
+
+      - name: Run Tier 3 four factors
+        if: ${{ github.event.inputs.run_four_factors == 'true' }}
+        shell: bash
+        run: |
+          python 02_process/four_factors.py \
+            2>&1 | tee logs/04_four_factors.log
+
+      - name: Upload live game outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: wnba-live-game-outputs-${{ github.run_id }}
+          path: ${{ github.event.inputs.output_dir }}/
+          retention-days: 7
+
+      - name: Upload pipeline logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-game-pipeline-logs-${{ github.run_id }}
+          path: logs/
+          retention-days: 14
