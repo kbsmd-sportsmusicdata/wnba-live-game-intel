@@ -8,7 +8,9 @@ A modular Python pipeline that ingests live WNBA box score data and derives broa
 01_ingest/        Raw player + team box score fetch and validation
 02_process/       Tiered derivation modules (Tiers 1–3 + beyond)
 03_outputs/       CSV, JSON, and dashboard payload artifacts
+04_refresh/       Season-wide refresh scripts for SportsDataverse + PBPStats
 config/           Game metadata, team colors, thresholds
+tests/            Relocated unit tests for refresh workflows
 ```
 
 ## Tiers
@@ -35,6 +37,20 @@ python 02_process/shooting_metrics.py
 python 02_process/possession_engine.py
 python 02_process/four_factors.py
 ```
+
+## Season Refresh Workflow
+
+Use `04_refresh/` for offline season-wide data refreshes that should stay separate
+from the live single-game pipeline.
+
+```bash
+python 04_refresh/fetch_wnba_sportsdataverse_2026.py
+python 04_refresh/pbpstats_2026_pull_clean.py
+python 04_refresh/pbpstats_2026_features.py
+```
+
+These scripts keep their own env-configured data roots under `data/` and do not
+write into `03_outputs/`, which remains reserved for live-game artifacts.
 
 ## Output Files
 
