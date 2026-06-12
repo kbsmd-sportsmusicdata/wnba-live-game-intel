@@ -24,6 +24,7 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -238,7 +239,10 @@ def parse_boxscore(data: dict, game_id: str, fetched_at: str) -> tuple[pd.DataFr
 
         for athlete_entry in team_entry.get("statistics", []):
             # Each entry has a list of athletes with their stat arrays
-            stat_names = [s.get("name", "") for s in athlete_entry.get("keys", [])]
+            stat_names = [
+                s.get("name", "") if isinstance(s, dict) else str(s)
+                for s in athlete_entry.get("keys", [])
+            ]
 
             for athlete in athlete_entry.get("athletes", []):
                 athlete_info = athlete.get("athlete", {})
