@@ -1,5 +1,8 @@
 name: WNBA Live Game Pipeline
 
+permissions:
+  contents: write
+
 "on":
   workflow_dispatch:
     inputs:
@@ -45,6 +48,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -84,40 +89,83 @@ jobs:
           PY
 
       - name: Create logs directory
-        run: mkdir -p logs
+        run: mkdir -p "${{ github.event.inputs.output_dir }}/logs"
 
       - name: Run live box ingest
         shell: bash
         run: |
           python 01_ingest/box_ingest.py --game_id "${{ github.event.inputs.game_id }}" \
-            2>&1 | tee logs/01_ingest.log
+            2>&1 | tee "${{ github.event.inputs.output_dir }}/logs/01_ingest.log"
 
       - name: Run Tier 1 shooting metrics
         if: ${{ github.event.inputs.run_shooting_metrics == 'true' }}
         shell: bash
         run: |
           python 02_process/shooting_metrics.py \
-            2>&1 | tee logs/02_shooting_metrics.log
+            2>&1 | tee "${{ github.event.inputs.output_dir }}/logs/02_shooting_metrics.log"
 
       - name: Run Tier 2 possession engine
         if: ${{ github.event.inputs.run_possession_engine == 'true' }}
         shell: bash
         run: |
           python 02_process/possession_engine.py \
-            2>&1 | tee logs/03_possession_engine.log
+            2>&1 | tee "${{ github.event.inputs.output_dir }}/logs/03_possession_engine.log"
 
       - name: Run Tier 3 four factors
         if: ${{ github.event.inputs.run_four_factors == 'true' }}
         shell: bash
         run: |
           python 02_process/four_factors.py \
-            2>&1 | tee logs/04_four_factors.log
+            2>&1 | tee "${{ github.event.inputs.output_dir }}/logs/04_four_factors.log"
 
-      - name: Upload live game outputs
+      - name: Commit selected live game outputs
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          files=(
+            "${{ github.event.inputs.output_dir }}/raw_player.csv"
+            "${{ github.event.inputs.output_dir }}/raw_team.csv"
+            "${{ github.event.inputs.output_dir }}/tier1_shooting_player.csv"
+            "${{ github.event.inputs.output_dir }}/tier1_shooting_team.csv"
+            "${{ github.event.inputs.output_dir }}/tier2_possession_player.csv"
+            "${{ github.event.inputs.output_dir }}/tier2_possession_team.csv"
+            "${{ github.event.inputs.output_dir }}/tier3_four_factors.csv"
+            "${{ github.event.inputs.output_dir }}/tier3_four_factors_wide.csv"
+            "${{ github.event.inputs.output_dir }}/dashboard_payload.json"
+            "${{ github.event.inputs.output_dir }}/game_summary.json"
+          )
+
+          for file in "${files[@]}"; do
+            if [[ -f "$file" ]]; then
+              git add "$file"
+            fi
+          done
+
+          if git diff --cached --quiet; then
+            echo "No selected output changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Update live game outputs for ${{ github.event.inputs.game_id }} (run ${{ github.run_id }})"
+          git push origin HEAD:${{ github.ref_name }}
+
+      - name: Upload live game outputs artifact
         uses: actions/upload-artifact@v4
         with:
           name: wnba-live-game-outputs-${{ github.run_id }}
-          path: ${{ github.event.inputs.output_dir }}/
+          path: |
+            ${{ github.event.inputs.output_dir }}/raw_player.csv
+            ${{ github.event.inputs.output_dir }}/raw_team.csv
+            ${{ github.event.inputs.output_dir }}/tier1_shooting_player.csv
+            ${{ github.event.inputs.output_dir }}/tier1_shooting_team.csv
+            ${{ github.event.inputs.output_dir }}/tier2_possession_player.csv
+            ${{ github.event.inputs.output_dir }}/tier2_possession_team.csv
+            ${{ github.event.inputs.output_dir }}/tier3_four_factors.csv
+            ${{ github.event.inputs.output_dir }}/tier3_four_factors_wide.csv
+            ${{ github.event.inputs.output_dir }}/dashboard_payload.json
+            ${{ github.event.inputs.output_dir }}/game_summary.json
           retention-days: 7
 
       - name: Upload pipeline logs
@@ -125,5 +173,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: live-game-pipeline-logs-${{ github.run_id }}
-          path: logs/
+          path: ${{ github.event.inputs.output_dir }}/logs/
           retention-days: 14

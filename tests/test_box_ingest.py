@@ -180,11 +180,73 @@ class BoxIngestParsingTest(unittest.TestCase):
         self.assertEqual(len(players), 1)
         self.assertEqual(set(teams["team_abbr"]), {"LV", "ATL"})
         self.assertEqual(teams.loc[teams["team_abbr"] == "LV", "home_away"].iloc[0], "away")
+        self.assertEqual(teams.loc[teams["team_abbr"] == "LV", "pts"].iloc[0], 85)
         self.assertEqual(players.loc[0, "player_name"], "A'ja Wilson")
         self.assertEqual(players.loc[0, "minutes"], 31.0)
         self.assertEqual(players.loc[0, "pts"], 20)
         self.assertTrue(BOX_INGEST.validate_schema(players, BOX_INGEST.REQUIRED_PLAYER_COLS, "raw_player"))
         self.assertTrue(BOX_INGEST.validate_schema(teams, BOX_INGEST.REQUIRED_TEAM_COLS, "raw_team"))
+
+    def test_parse_boxscore_uses_completed_game_fallbacks_for_team_scoreboard(self):
+        sample = {
+            "header": {
+                "competitions": [
+                    {
+                        "date": "2026-05-17T17:30Z",
+                        "status": {
+                            "type": {"name": "STATUS_FINAL", "completed": True},
+                        },
+                        "competitors": [
+                            {"id": "17", "homeAway": "away", "score": "85"},
+                            {"id": "20", "homeAway": "home", "score": "84"},
+                        ],
+                    }
+                ]
+            },
+            "plays": [
+                {
+                    "period": {"number": 4, "displayValue": "4th Quarter"},
+                    "clock": {"displayValue": "0.0"},
+                    "text": "End of Game",
+                }
+            ],
+            "boxscore": {
+                "teams": [
+                    {
+                        "team": {"id": "17", "displayName": "Las Vegas Aces", "abbreviation": "LV"},
+                        "statistics": [
+                            {"name": "fieldGoalsMade-fieldGoalsAttempted", "displayValue": "31-73"},
+                            {"name": "fieldGoalPct", "displayValue": "42.5"},
+                            {"name": "threePointFieldGoalsMade-threePointFieldGoalsAttempted", "displayValue": "10-27"},
+                            {"name": "threePointFieldGoalPct", "displayValue": "37.0"},
+                            {"name": "freeThrowsMade-freeThrowsAttempted", "displayValue": "13-17"},
+                            {"name": "freeThrowPct", "displayValue": "76.5"},
+                            {"name": "totalRebounds", "displayValue": "38"},
+                            {"name": "offensiveRebounds", "displayValue": "6"},
+                            {"name": "defensiveRebounds", "displayValue": "32"},
+                            {"name": "assists", "displayValue": "21"},
+                            {"name": "steals", "displayValue": "5"},
+                            {"name": "blocks", "displayValue": "8"},
+                            {"name": "turnovers", "displayValue": "13"},
+                            {"name": "fouls", "displayValue": "23"},
+                        ],
+                    }
+                ],
+                "players": [],
+            },
+        }
+
+        players, teams = BOX_INGEST.parse_boxscore(
+            sample,
+            game_id="401856915",
+            fetched_at="2026-06-12T00:00:00+00:00",
+        )
+
+        self.assertTrue(players.empty)
+        self.assertEqual(teams.loc[0, "pts"], 85)
+        self.assertEqual(teams.loc[0, "reb"], 38)
+        self.assertEqual(teams.loc[0, "period"], 4)
+        self.assertEqual(teams.loc[0, "clock"], "0.0")
 
     def test_parse_boxscore_accepts_string_stat_keys_from_live_payloads(self):
         sample = {
