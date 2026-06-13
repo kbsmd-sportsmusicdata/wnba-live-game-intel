@@ -44,8 +44,10 @@ The repo includes a manual workflow at
 [`.github/workflows/wnba-live-game-pipeline.yml`](.github/workflows/wnba-live-game-pipeline.yml)
 for one-shot live game runs in GitHub Actions. It accepts an ESPN `game_id`,
 updates [`config/game_config.yaml`](config/game_config.yaml) at runtime inside
-the workflow, runs ingest, optionally runs the downstream tiers, and uploads
-both the generated outputs and captured stage logs as artifacts.
+the workflow, runs ingest, optionally runs the downstream tiers, commits the
+selected generated datasets back into `03_outputs/` on the branch that ran the
+workflow, and uploads the captured stage logs as artifacts from
+`03_outputs/logs/`.
 
 For the first completed-game smoke test, use `game_id` `401856915` as the
 fixed 2026 validation fixture for both local ingest checks and the first manual
@@ -85,6 +87,11 @@ All outputs land in `03_outputs/`:
 - `tier2_possession_player.csv` and `tier2_possession_team.csv` — possession counts, pace, ORtg/DRtg
 - `tier3_four_factors.csv` — Four Factors side-by-side with differentials
 - `dashboard_payload.json` — all derived stats formatted for dashboard ingestion
+
+Manual GitHub Actions runs persist the selected output datasets above back into
+the branch’s `03_outputs/` folder. Stage logs are written under
+`03_outputs/logs/` during the run and remain artifact-only so repo history does
+not fill up with run-by-run log files.
 
 ## Configuration
 

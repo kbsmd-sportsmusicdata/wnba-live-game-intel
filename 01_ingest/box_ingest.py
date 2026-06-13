@@ -149,6 +149,13 @@ def _safe_minutes(val) -> float:
         return 0.0
 
 
+def _coalesce(*values):
+    for value in values:
+        if value not in (None, ""):
+            return value
+    return None
+
+
 # ---------------------------------------------------------------------------
 # ESPN JSON → DataFrames
 # ---------------------------------------------------------------------------
@@ -169,16 +176,29 @@ def parse_boxscore(data: dict, game_id: str, fetched_at: str) -> tuple[pd.DataFr
     # ---- Game-level metadata ----
     competitions = data.get("header", {}).get("competitions", [])
     game_info = competitions[0] if competitions else {}
-    status_type = game_info.get("status", {}).get("type", {}).get("name", "unknown")
-    period = game_info.get("status", {}).get("period", 0)
-    display_clock = game_info.get("status", {}).get("displayClock", "")
+    status = game_info.get("status", {})
+    status_type = status.get("type", {}).get("name", "unknown")
+    plays = data.get("plays", [])
+    final_play = plays[-1] if plays else {}
+    period = _coalesce(
+        status.get("period"),
+        final_play.get("period", {}).get("number"),
+        0,
+    )
+    display_clock = _coalesce(
+        status.get("displayClock"),
+        final_play.get("clock", {}).get("displayValue"),
+        "",
+    )
     game_date = game_info.get("date", "")
 
     # Map ESPN team id → home/away
     team_homeaway = {}
+    competitor_scores = {}
     for comp_team in game_info.get("competitors", []):
         espn_id = comp_team.get("id", "")
         team_homeaway[espn_id] = comp_team.get("homeAway", "unknown")
+        competitor_scores[espn_id] = comp_team.get("score")
 
     # ---- Team totals ----
     for t in teams_data:
@@ -204,7 +224,14 @@ def parse_boxscore(data: dict, game_id: str, fetched_at: str) -> tuple[pd.DataFr
             "team_name": team_info.get("displayName", ""),
             "team_abbr": team_info.get("abbreviation", ""),
             "home_away": team_homeaway.get(team_id, "unknown"),
-            "pts": _safe_int(stats_map.get("points", 0)),
+            "pts": _safe_int(
+                _coalesce(
+                    competitor_scores.get(team_id),
+                    stats_map.get("points"),
+                    stats_map.get("PTS"),
+                    0,
+                )
+            ),
             "fgm": fg_made,
             "fga": fg_att,
             "fg_pct": _safe_float(stats_map.get("fieldGoalPct", 0)),
@@ -216,7 +243,14 @@ def parse_boxscore(data: dict, game_id: str, fetched_at: str) -> tuple[pd.DataFr
             "ft_pct": _safe_float(stats_map.get("freeThrowPct", 0)),
             "oreb": _safe_int(stats_map.get("offensiveRebounds", 0)),
             "dreb": _safe_int(stats_map.get("defensiveRebounds", 0)),
-            "reb": _safe_int(stats_map.get("rebounds", 0)),
+            "reb": _safe_int(
+                _coalesce(
+                    stats_map.get("totalRebounds"),
+                    stats_map.get("rebounds"),
+                    stats_map.get("REB"),
+                    0,
+                )
+            ),
             "ast": _safe_int(stats_map.get("assists", 0)),
             "stl": _safe_int(stats_map.get("steals", 0)),
             "blk": _safe_int(stats_map.get("blocks", 0)),
