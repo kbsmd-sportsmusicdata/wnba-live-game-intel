@@ -139,7 +139,7 @@ jobs:
 
           for file in "${files[@]}"; do
             if [[ -f "$file" ]]; then
-              git add "$file"
+              git add -f "$file"
             fi
           done
 
