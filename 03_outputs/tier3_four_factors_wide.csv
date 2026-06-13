@@ -1,0 +1,5 @@
+factor,factor_label,weight,lower_is_better,team_a_abbr,team_b_abbr,team_a_value,team_b_value,differential,winning_team
+efg_pct,Effective FG%,0.4,False,LV,ATL,0.4932,0.4041,0.0891,LV
+tov_rate,Turnover Rate,0.25,True,LV,ATL,0.1486,0.1424,0.0062,ATL
+oreb_pct,Off. Reb. %,0.2,False,LV,ATL,0.15,0.2558,-0.1058,ATL
+ftr,Free Throw Rate,0.15,False,LV,ATL,0.2329,0.5068,-0.2739,ATL
