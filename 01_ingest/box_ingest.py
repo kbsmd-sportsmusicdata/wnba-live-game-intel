@@ -177,17 +177,17 @@ def parse_boxscore(data: dict, game_id: str, fetched_at: str) -> tuple[pd.DataFr
     competitions = data.get("header", {}).get("competitions", [])
     game_info = competitions[0] if competitions else {}
     status = game_info.get("status", {})
-    status_type = status.get("type", {}).get("name", "unknown")
+    status_type = (status.get("type") or {}).get("name", "unknown")
     plays = data.get("plays", [])
     final_play = plays[-1] if plays else {}
     period = _coalesce(
         status.get("period"),
-        final_play.get("period", {}).get("number"),
+        (final_play.get("period") or {}).get("number"),
         0,
     )
     display_clock = _coalesce(
         status.get("displayClock"),
-        final_play.get("clock", {}).get("displayValue"),
+        (final_play.get("clock") or {}).get("displayValue"),
         "",
     )
     game_date = game_info.get("date", "")
