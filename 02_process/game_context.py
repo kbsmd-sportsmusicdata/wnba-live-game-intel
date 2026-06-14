@@ -232,8 +232,8 @@ def _build_team_storylines(home: pd.Series, away: pd.Series, winner_abbr: str) -
             f"{leader_abbr} won the glass {leader_reb}-{trailing_reb}, which helps explain quarter-by-quarter WPBA point pressure."
         )
 
-    home_pts_off_tov = int(pd.to_numeric(home.get("pts_off_tov", 0), errors="coerce"))
-    away_pts_off_tov = int(pd.to_numeric(away.get("pts_off_tov", 0), errors="coerce"))
+    home_pts_off_tov = _safe_int(home.get("pts_off_tov", 0))
+    away_pts_off_tov = _safe_int(away.get("pts_off_tov", 0))
     if abs(home_pts_off_tov - away_pts_off_tov) >= 4:
         leader_abbr = home_abbr if home_pts_off_tov > away_pts_off_tov else away_abbr
         leader_pts_off_tov = max(home_pts_off_tov, away_pts_off_tov)
