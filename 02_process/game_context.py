@@ -202,8 +202,8 @@ def _build_team_storylines(home: pd.Series, away: pd.Series, winner_abbr: str) -
     home_abbr = str(home.get("team_abbr", ""))
     away_abbr = str(away.get("team_abbr", ""))
 
-    home_assists = int(pd.to_numeric(home.get("ast", 0), errors="coerce"))
-    away_assists = int(pd.to_numeric(away.get("ast", 0), errors="coerce"))
+    home_assists = _safe_int(home.get("ast", 0))
+    away_assists = _safe_int(away.get("ast", 0))
     if abs(home_assists - away_assists) >= 5:
         leader_abbr = home_abbr if home_assists > away_assists else away_abbr
         leader_assists = max(home_assists, away_assists)
