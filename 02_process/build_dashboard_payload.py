@@ -239,6 +239,8 @@ def _serialize_record(record: dict) -> dict:
             clean[key] = None
         elif isinstance(value, bool):
             clean[key] = value
+        elif hasattr(value, "item") and not isinstance(value, str):
+            clean[key] = value.item()
         elif isinstance(value, (int, float, str)) or value is None:
             clean[key] = value
         else:
