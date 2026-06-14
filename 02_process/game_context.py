@@ -212,8 +212,8 @@ def _build_team_storylines(home: pd.Series, away: pd.Series, winner_abbr: str) -
             f"{leader_abbr} led assists {leader_assists}-{trailing_assists}, a strong ball-movement and coaching-control signal for the broadcast."
         )
 
-    home_paint = int(pd.to_numeric(home.get("pts_in_paint", 0), errors="coerce"))
-    away_paint = int(pd.to_numeric(away.get("pts_in_paint", 0), errors="coerce"))
+    home_paint = _safe_int(home.get("pts_in_paint", 0))
+    away_paint = _safe_int(away.get("pts_in_paint", 0))
     if abs(home_paint - away_paint) >= 4:
         leader_abbr = home_abbr if home_paint > away_paint else away_abbr
         leader_paint = max(home_paint, away_paint)
