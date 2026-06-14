@@ -242,8 +242,8 @@ def _build_team_storylines(home: pd.Series, away: pd.Series, winner_abbr: str) -
             f"{leader_abbr} created a live-ball edge with points off turnovers {leader_pts_off_tov}-{trailing_pts_off_tov}."
         )
 
-    home_second_chance = int(pd.to_numeric(home.get("second_chance_pts", 0), errors="coerce"))
-    away_second_chance = int(pd.to_numeric(away.get("second_chance_pts", 0), errors="coerce"))
+    home_second_chance = _safe_int(home.get("second_chance_pts", 0))
+    away_second_chance = _safe_int(away.get("second_chance_pts", 0))
     if abs(home_second_chance - away_second_chance) >= 4:
         leader_abbr = home_abbr if home_second_chance > away_second_chance else away_abbr
         leader_second_chance = max(home_second_chance, away_second_chance)
