@@ -222,8 +222,8 @@ def _build_team_storylines(home: pd.Series, away: pd.Series, winner_abbr: str) -
             f"{leader_abbr} controlled the paint {leader_paint}-{trailing_paint}, a useful frontcourt and game-plan angle to emphasize."
         )
 
-    home_reb = int(pd.to_numeric(home.get("reb", 0), errors="coerce"))
-    away_reb = int(pd.to_numeric(away.get("reb", 0), errors="coerce"))
+    home_reb = _safe_int(home.get("reb", 0))
+    away_reb = _safe_int(away.get("reb", 0))
     if abs(home_reb - away_reb) >= 5:
         leader_abbr = home_abbr if home_reb > away_reb else away_abbr
         leader_reb = max(home_reb, away_reb)
