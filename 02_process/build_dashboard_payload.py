@@ -146,17 +146,14 @@ def get_efficiency_tier(ts_pct: Any) -> str:
 def get_bench_impact_flag(starter: Any, game_score: Any) -> bool:
     return (not _as_bool(starter)) and _safe_float(game_score) >= 8.0
 
-
-def _normalize_player_frame(df_players: pd.DataFrame) -> pd.DataFrame:
+def _normalize_player_frame(df_players: pd.DataFrame) -> pd.DataFrame: 
     df = df_players.copy()
     for col in ["minutes", "pts", "reb", "ast", "tov", "pf", "plus_minus", "fga", "fta", "efg_pct", "ts_pct", "usg_pct", "game_score"]:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors="coerce")
-    for col in ["starter", "active", "did_not_play"]:
-        if col in df.columns:
-            df[col] = df[col].apply(_as_bool)
         else:
-            df[col] = False
+            df[col] = float("nan")
+
     if "home_away" not in df.columns:
         df["home_away"] = ""
     if "team_abbr" not in df.columns:
