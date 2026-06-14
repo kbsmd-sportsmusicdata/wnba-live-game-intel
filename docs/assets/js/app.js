@@ -256,7 +256,7 @@
       ["ts_pct", "TS%"],
       ["usg_pct", "USG%"],
       ["game_score", "Game Score"],
-      ["ast_to_display", "AST/TO"],
+      ["ast_to", "AST/TO"],
       ["foul_status", "Foul Status"],
     ];
 
