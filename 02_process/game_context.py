@@ -277,8 +277,8 @@ def _build_team_storylines(home: pd.Series, away: pd.Series, winner_abbr: str) -
                 f"{team_abbr} posted a notable free-throw scoring share at {free_throw_share}%, showing how often they converted pressure into points."
             )
 
-    home_largest_lead = int(pd.to_numeric(home.get("largest_lead", 0), errors="coerce"))
-    away_largest_lead = int(pd.to_numeric(away.get("largest_lead", 0), errors="coerce"))
+    home_largest_lead = _safe_int(home.get("largest_lead", 0))
+    away_largest_lead = _safe_int(away.get("largest_lead", 0))
     max_lead = max(home_largest_lead, away_largest_lead)
     if max_lead >= 10:
         leader_abbr = home_abbr if home_largest_lead >= away_largest_lead else away_abbr
