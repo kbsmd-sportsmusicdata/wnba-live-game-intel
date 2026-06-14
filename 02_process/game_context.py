@@ -253,11 +253,11 @@ def _build_team_storylines(home: pd.Series, away: pd.Series, winner_abbr: str) -
         )
 
     for team, team_abbr in ((home, home_abbr), (away, away_abbr)):
-        total_points = float(pd.to_numeric(team.get("pts", 0), errors="coerce"))
+        total_points = _safe_float(team.get("pts", 0))
         if total_points <= 0:
             continue
-        three_point_points = float(pd.to_numeric(team.get("tpm", 0), errors="coerce")) * 3.0
-        free_throw_points = float(pd.to_numeric(team.get("ftm", 0), errors="coerce"))
+        three_point_points = _safe_float(team.get("tpm", 0)) * 3.0
+        free_throw_points = _safe_float(team.get("ftm", 0))
         two_point_points = max(
             total_points - three_point_points - free_throw_points,
             0.0,
