@@ -54,6 +54,14 @@ def _clock_to_minutes(clock_value) -> float:
     except (ValueError, TypeError):
         return 0.0
 
+def _safe_int(val) -> int:
+    num = pd.to_numeric(val, errors="coerce")
+    return int(num) if pd.notna(num) else 0
+
+
+def _safe_float(val) -> float:
+    num = pd.to_numeric(val, errors="coerce")
+    return float(num) if pd.notna(num) else 0.0
 
 def fetch_espn_summary(game_id: str) -> dict:
     try:
