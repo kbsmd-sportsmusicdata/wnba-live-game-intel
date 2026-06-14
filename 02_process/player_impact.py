@@ -112,7 +112,7 @@ def compute_player_impact(df_players: pd.DataFrame, df_teams: pd.DataFrame) -> p
         fga = pd.to_numeric(df["fga"], errors="coerce").fillna(0)
         fta = pd.to_numeric(df["fta"], errors="coerce").fillna(0)
         tov = pd.to_numeric(df["tov"], errors="coerce").fillna(0)
-        min_share = safe_div(minutes, team_minutes.replace(0, 1))
+        min_share = safe_div(minutes, team_minutes)
         usg_pct = safe_div(fga + (0.44 * fta) + tov, team_poss * min_share).clip(0, 1.0)
 
     df["usg_pct"] = usg_pct
