@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Live Game Intelligence Dashboard - WPBA Concept Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./assets/css/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">WPBA Concept Demo</p>
+          <h1>Live Game Intelligence Dashboard</h1>
+          <p class="hero-copy">
+            A compact command-center view for live-game context, WPBA scoring,
+            team edges, player impact, and broadcast-ready notes.
+          </p>
+        </div>
+        <div class="hero-status" id="hero-status"></div>
+      </header>
+
+      <main id="app" class="dashboard-grid" aria-live="polite">
+        <section class="panel panel-wide skeleton"></section>
+        <section class="panel skeleton"></section>
+        <section class="panel skeleton"></section>
+        <section class="panel panel-wide skeleton"></section>
+      </main>
+    </div>
+
+    <script src="./assets/js/charts.js"></script>
+    <script src="./assets/js/app.js"></script>
+  </body>
+</html>

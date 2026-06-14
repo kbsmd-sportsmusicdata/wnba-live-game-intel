@@ -118,6 +118,34 @@ jobs:
           python 02_process/four_factors.py \
             2>&1 | tee "${{ github.event.inputs.output_dir }}/logs/04_four_factors.log"
 
+      - name: Run player impact
+        if: ${{ github.event.inputs.run_four_factors == 'true' }}
+        shell: bash
+        run: |
+          python 02_process/player_impact.py \
+            2>&1 | tee "${{ github.event.inputs.output_dir }}/logs/05_player_impact.log"
+
+      - name: Build game context
+        if: ${{ github.event.inputs.run_four_factors == 'true' }}
+        shell: bash
+        run: |
+          python 02_process/game_context.py \
+            2>&1 | tee "${{ github.event.inputs.output_dir }}/logs/06_game_context.log"
+
+      - name: Derive final outputs
+        if: ${{ github.event.inputs.run_four_factors == 'true' }}
+        shell: bash
+        run: |
+          python 02_process/derive_outputs.py \
+            2>&1 | tee "${{ github.event.inputs.output_dir }}/logs/07_derive_outputs.log"
+
+      - name: Build dashboard payload
+        if: ${{ github.event.inputs.run_four_factors == 'true' }}
+        shell: bash
+        run: |
+          python 02_process/build_dashboard_payload.py \
+            2>&1 | tee "${{ github.event.inputs.output_dir }}/logs/08_dashboard_payload.log"
+
       - name: Commit selected live game outputs
         shell: bash
         run: |
@@ -133,8 +161,19 @@ jobs:
             "${{ github.event.inputs.output_dir }}/tier2_possession_team.csv"
             "${{ github.event.inputs.output_dir }}/tier3_four_factors.csv"
             "${{ github.event.inputs.output_dir }}/tier3_four_factors_wide.csv"
+            "${{ github.event.inputs.output_dir }}/player_impact.csv"
+            "${{ github.event.inputs.output_dir }}/game_context.json"
+            "${{ github.event.inputs.output_dir }}/player_derived.csv"
+            "${{ github.event.inputs.output_dir }}/team_derived.csv"
             "${{ github.event.inputs.output_dir }}/dashboard_payload.json"
             "${{ github.event.inputs.output_dir }}/game_summary.json"
+            "docs/dashboard_data/dashboard_payload.json"
+            "docs/dashboard_data/game_summary.json"
+            "docs/index.html"
+            "docs/assets/css/styles.css"
+            "docs/assets/js/app.js"
+            "docs/assets/js/charts.js"
+            "docs/raw_data_contract.md"
           )
 
           for file in "${files[@]}"; do
@@ -164,8 +203,19 @@ jobs:
             ${{ github.event.inputs.output_dir }}/tier2_possession_team.csv
             ${{ github.event.inputs.output_dir }}/tier3_four_factors.csv
             ${{ github.event.inputs.output_dir }}/tier3_four_factors_wide.csv
+            ${{ github.event.inputs.output_dir }}/player_impact.csv
+            ${{ github.event.inputs.output_dir }}/game_context.json
+            ${{ github.event.inputs.output_dir }}/player_derived.csv
+            ${{ github.event.inputs.output_dir }}/team_derived.csv
             ${{ github.event.inputs.output_dir }}/dashboard_payload.json
             ${{ github.event.inputs.output_dir }}/game_summary.json
+            docs/dashboard_data/dashboard_payload.json
+            docs/dashboard_data/game_summary.json
+            docs/index.html
+            docs/assets/css/styles.css
+            docs/assets/js/app.js
+            docs/assets/js/charts.js
+            docs/raw_data_contract.md
           retention-days: 7
 
       - name: Upload pipeline logs
