@@ -17,6 +17,8 @@
     ts_pct: "number",
     usg_pct: "number",
     game_score: "number",
+    ast_to: "number",
+    foul_status: "string",
   };
 
   let currentSort = { key: "game_score", direction: "desc" };
