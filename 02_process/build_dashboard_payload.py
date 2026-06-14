@@ -201,13 +201,6 @@ def _load_teams(output_dir: Path, game_context: dict) -> pd.DataFrame:
     if derived_path.exists():
         return pd.read_csv(derived_path)
 
-    tier2_team_path = output_dir / "tier2_possession_team.csv"
-    raw_team_path = output_dir / "raw_team.csv"
-    four_factors_path = output_dir / "tier3_four_factors.csv"
-
-    if four_factors_path.exists():
-        return pd.read_csv(four_factors_path)
-
     if tier2_team_path.exists() and raw_team_path.exists():
         df_raw = pd.read_csv(raw_team_path)
         df_tier2 = pd.read_csv(tier2_team_path)
@@ -217,6 +210,9 @@ def _load_teams(output_dir: Path, game_context: dict) -> pd.DataFrame:
         merged["final_margin"] = game_context.get("final_margin")
         merged["winner_team_abbr"] = game_context.get("winner_team_abbr")
         return merged
+
+    if four_factors_path.exists():
+        return pd.read_csv(four_factors_path)
 
     raise FileNotFoundError("Missing team dashboard source files: team_derived.csv and fallback team inputs.")
 
