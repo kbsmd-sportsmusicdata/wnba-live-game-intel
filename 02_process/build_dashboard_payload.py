@@ -320,10 +320,10 @@ def _top_records(df: pd.DataFrame, sort_cols: list[str], ascending: list[bool], 
 
 
 def _build_leaders(df_players: pd.DataFrame) -> dict:
-    efficiency_pool = df_players[(df_players.get("fga", 0).fillna(0) + df_players.get("fta", 0).fillna(0)) >= 3].copy()
-    usage_pool = df_players[df_players.get("minutes", 0).fillna(0) >= 5].copy()
+    efficiency_pool = df_players[(df_players["fga"].fillna(0) + df_players["fta"].fillna(0)) >= 3].copy()
+    usage_pool = df_players[df_players["minutes"].fillna(0) >= 5].copy()
     bench_pool = df_players[df_players["bench_impact_flag"]].copy()
-    foul_pool = df_players[df_players.get("pf", 0).fillna(0) >= 3].copy()
+    foul_pool = df_players[df_players["pf"].fillna(0) >= 3].copy()
 
     return {
         "points": _top_records(df_players, ["pts", "game_score"], [False, False]),
