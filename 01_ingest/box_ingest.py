@@ -38,6 +38,12 @@ from rich.table import Table
 # ---------------------------------------------------------------------------
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CONFIG_PATH = REPO_ROOT / "config" / "game_config.yaml"
+INGEST_DIR = Path(__file__).resolve().parent
+
+if str(INGEST_DIR) not in sys.path:
+    sys.path.insert(0, str(INGEST_DIR))
+
+from schemas import REQUIRED_PLAYER_COLS, REQUIRED_TEAM_COLS, validate_schema
 
 console = Console()
 
@@ -346,33 +352,6 @@ def parse_boxscore(data: dict, game_id: str, fetched_at: str) -> tuple[pd.DataFr
 
 
 # ---------------------------------------------------------------------------
-# Schema validation
-# ---------------------------------------------------------------------------
-REQUIRED_PLAYER_COLS = [
-    "game_id", "player_id", "player_name", "team_abbr",
-    "minutes", "pts", "fgm", "fga", "tpm", "tpa",
-    "ftm", "fta", "oreb", "dreb", "reb",
-    "ast", "stl", "blk", "tov", "pf", "plus_minus",
-]
-
-REQUIRED_TEAM_COLS = [
-    "game_id", "team_id", "team_abbr", "home_away",
-    "pts", "fgm", "fga", "tpm", "tpa",
-    "ftm", "fta", "oreb", "dreb", "reb",
-    "ast", "stl", "blk", "tov", "pf",
-]
-
-
-def validate_schema(df: pd.DataFrame, required_cols: list[str], label: str) -> bool:
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        console.print(f"[bold red]Schema error in {label}: missing columns {missing}[/bold red]")
-        return False
-    console.print(f"[green]✓ {label} schema OK — {len(df)} rows, {len(df.columns)} cols[/green]")
-    return True
-
-
-# ---------------------------------------------------------------------------
 # Output writers
 # ---------------------------------------------------------------------------
 def write_outputs(df_players: pd.DataFrame, df_teams: pd.DataFrame, output_dir: Path) -> None:
@@ -414,7 +393,7 @@ def print_preview(df_players: pd.DataFrame, df_teams: pd.DataFrame) -> None:
 # ---------------------------------------------------------------------------
 # Main entry
 # ---------------------------------------------------------------------------
-def run(game_id: str | None = None, live_mode: bool = False) -> tuple[pd.DataFrame, pd.DataFrame]:
+def run(game_id: Optional[str] = None, live_mode: bool = False) -> tuple[pd.DataFrame, pd.DataFrame]:
     config = load_config()
     _game_id = game_id or str(config["game"]["game_id"])
     output_dir = REPO_ROOT / config.get("output_dir", "03_outputs")
@@ -425,8 +404,8 @@ def run(game_id: str | None = None, live_mode: bool = False) -> tuple[pd.DataFra
         console.print(f"[bold]Fetching game_id={_game_id} at {fetched_at}[/bold]")
         data = fetch_espn_summary(_game_id)
         df_players, df_teams = parse_boxscore(data, _game_id, fetched_at)
-        validate_schema(df_players, REQUIRED_PLAYER_COLS, "raw_player")
-        validate_schema(df_teams, REQUIRED_TEAM_COLS, "raw_team")
+        validate_schema(df_players, REQUIRED_PLAYER_COLS, "raw_player", console=console)
+        validate_schema(df_teams, REQUIRED_TEAM_COLS, "raw_team", console=console)
         write_outputs(df_players, df_teams, output_dir)
         print_preview(df_players, df_teams)
         return df_players, df_teams
