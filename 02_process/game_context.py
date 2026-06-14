@@ -314,11 +314,11 @@ def build_game_context(
     home = home_rows.iloc[0] if not home_rows.empty else raw.iloc[0]
     away = away_rows.iloc[0] if not away_rows.empty else raw.iloc[-1]
 
-    home_pts = int(pd.to_numeric(home.get("pts", 0), errors="coerce"))
-    away_pts = int(pd.to_numeric(away.get("pts", 0), errors="coerce"))
+    home_pts = _safe_int(home.get("pts", 0))
+    away_pts = _safe_int(away.get("pts", 0))
     final_margin = abs(home_pts - away_pts)
     game_status = str(home.get("game_status", "unknown"))
-    period = int(pd.to_numeric(home.get("period", 0), errors="coerce"))
+    period = _safe_int(home.get("period", 0))
     clock = home.get("clock", "")
     clock_minutes = _clock_to_minutes(clock)
     is_final = "FINAL" in game_status.upper()
